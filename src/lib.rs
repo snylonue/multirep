@@ -63,6 +63,15 @@ pub fn multi_replace(s: &str, pats: &[(&str, &str)]) -> String {
     result
 }
 
+/// Exchanges two patterns in a string
+/// ```
+/// use multirep::exchange;
+/// assert_eq!("foo bar", exchange("bar foo", "foo", "bar"));
+/// ```
+pub fn exchange(s: &str, a: &str, b: &str) -> String {
+    multi_replace(s, &[(a, b), (b, a)])
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -101,5 +110,18 @@ mod test {
             )
         )
     }
+
+    #[test]
+    fn exchange() {
+        let s = "Both Hana and Minami are kawaii";
+
+        assert_eq!(
+            "Both Minami and Hana are kawaii",
+            super::exchange(s, "Minami", "Hana")
+        );
+        assert_eq!(
+            "Both Minami and Hana are kawaii",
+            super::exchange(s, "Hana", "Minami")
+        )
     }
 }
