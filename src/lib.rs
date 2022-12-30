@@ -31,8 +31,8 @@ pub fn multi_replace(s: &str, pats: &[(&str, &str)]) -> String {
     for (pat, new) in pats {
         for (i, p) in s.match_indices(pat) {
             if indices
-                .range(i..)
-                .next()
+                .range(..=i)
+                .next_back()
                 .map(|(pos, (len, _))| pos + len <= i)
                 .unwrap_or(true)
             {
@@ -89,5 +89,17 @@ mod test {
             "Hana is kawaii",
             multi_replace("Minami is kawaii", &[("Minami", "Hana")])
         )
+    }
+
+    #[test]
+    fn overlap() {
+        assert_eq!(
+            "Both Minami and Hana are kawaii",
+            multi_replace(
+                "Bouh Aoi and Hana are kawaii",
+                &[("Bouh", "Both"), ("Aoi", "Minami"), ("oi", "io")]
+            )
+        )
+    }
     }
 }
