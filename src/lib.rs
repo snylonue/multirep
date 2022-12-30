@@ -48,10 +48,16 @@ pub fn multi_replace(s: &str, pats: &[(&str, &str)]) -> String {
         // SAFETY: pos is returned by `str::match_indices`, which is valid
         // end >= 0 since it starts at 0 and only increases
         // end < pos since `str::match_indices` doesn't overlap
-        // len is the length of one pattern string, so `pos + len` should be on unicode boundaries.
+        // len is the length of one pattern string, so `pos + len`(`end`) should be on unicode boundaries.
         result.push_str(unsafe { s.get_unchecked(end..pos) });
         result.push_str(new);
         end = pos + len;
+    }
+
+    if end < s.len() {
+        // SAFETY: end >= 0 and is on unicode boundaries as above
+        // end < s.len()
+        result.push_str(unsafe { s.get_unchecked(end..) });
     }
 
     result
@@ -74,6 +80,14 @@ mod test {
         assert_eq!(
             "Hana is kawaii",
             multi_replace("Hana is cute", &[("Rica", "Minami"), ("cute", "kawaii")])
+        )
+    }
+
+    #[test]
+    fn remain() {
+        assert_eq!(
+            "Hana is kawaii",
+            multi_replace("Minami is kawaii", &[("Minami", "Hana")])
         )
     }
 }
