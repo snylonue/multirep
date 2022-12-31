@@ -69,7 +69,14 @@ pub fn multi_replace(s: &str, pats: &[(&str, &str)]) -> String {
 /// assert_eq!("foo bar", exchange("bar foo", "foo", "bar"));
 /// ```
 pub fn exchange(s: &str, a: &str, b: &str) -> String {
-    multi_replace(s, &[(a, b), (b, a)])
+    // if a contains b, searching b first will also match a substring of a.
+    // search the longer one to avoid such a situation.
+    let pat = if a.len() > b.len() {
+        [(a, b), (b, a)]
+    } else {
+        [(b, a), (a, b)]
+    };
+    multi_replace(s, &pat)
 }
 
 #[cfg(test)]
@@ -122,6 +129,14 @@ mod test {
         assert_eq!(
             "Both Minami and Hana are kawaii",
             super::exchange(s, "Hana", "Minami")
-        )
+        );
+        assert_eq!(
+            "Both Hinata and Hina are kawaii",
+            super::exchange("Both Hina and Hinata are kawaii", "Hina", "Hinata")
+        );
+        assert_eq!(
+            "Both Hinata and Hina are kawaii",
+            super::exchange("Both Hina and Hinata are kawaii", "Hinata", "Hina")
+        );
     }
 }
